@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HaptoFlow: High-Fidelity Real-Time Vibrotactile Generation via Flow Matching for Virtual Reality</title>
+<meta name="description" content="HaptoFlow is a Flow Matching-based vibrotactile generative model for real-time haptic rendering in Virtual Reality.">
+<meta property="og:title" content="HaptoFlow: High-Fidelity Real-Time Vibrotactile Generation via Flow Matching for Virtual Reality">
+<meta property="og:description" content="A Flow Matching-based vibrotactile generative model for real-time haptic rendering in Virtual Reality.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tamago117.github.io/HaptoFlow/">
+<meta property="og:image" content="https://tamago117.github.io/HaptoFlow/static/images/teaser.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>〰️</text></svg>">
+<style>
+  :root{
+    --fg:#1a1a1a; --muted:#5b6470; --bg:#ffffff; --soft:#f5f7fa;
+    --line:#e3e7ec; --accent:#1f6feb; --accent-dark:#144a9e;
+    --maxw:960px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+    font-size:17px; line-height:1.75; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
+  .narrow{max-width:760px; margin-left:auto; margin-right:auto}
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ---------- header ---------- */
+  header{padding:64px 0 8px; text-align:center; border-bottom:1px solid var(--line)}
+  h1.title{
+    font-size:clamp(28px,4.4vw,44px); line-height:1.25; font-weight:700;
+    margin:0 0 6px; letter-spacing:-.015em;
+  }
+  h1.title .name{display:block; font-size:1.18em; letter-spacing:.01em}
+  .authors{margin:22px 0 6px; font-size:19px}
+  .authors a{color:var(--fg); border-bottom:1px solid transparent}
+  .authors a:hover{color:var(--accent); border-color:var(--accent); text-decoration:none}
+  .authors sup{color:var(--accent); font-size:.7em}
+  .affil{color:var(--muted); font-size:15px; margin:0 0 4px}
+  .affil sup{color:var(--accent)}
+
+  /* ---------- buttons ---------- */
+  .links{display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin:30px 0 46px}
+  .btn{
+    display:inline-flex; align-items:center; gap:9px;
+    padding:11px 22px; border-radius:999px;
+    background:#20242b; color:#fff; font-size:15.5px; font-weight:600;
+    border:1px solid #20242b; transition:.15s;
+  }
+  .btn:hover{background:var(--accent); border-color:var(--accent); text-decoration:none; transform:translateY(-1px)}
+  .btn.disabled{
+    background:transparent; color:var(--muted); border:1px solid var(--line);
+    cursor:default; pointer-events:none;
+  }
+  .btn svg{width:17px; height:17px; fill:currentColor; flex:none}
+
+  /* ---------- sections ---------- */
+  section{padding:52px 0}
+  section + section{border-top:1px solid var(--line)}
+  h2{
+    font-size:29px; font-weight:700; letter-spacing:-.01em;
+    margin:0 0 26px; text-align:center;
+  }
+  h3{font-size:19px; font-weight:700; margin:38px 0 12px}
+  p{margin:0 0 18px}
+
+  /* ---------- figures ---------- */
+  figure{margin:26px 0}
+  figure img{width:100%; height:auto; display:block; border-radius:8px}
+  figure img.bordered{border:1px solid var(--line)}
+  figcaption{
+    color:var(--muted); font-size:14.5px; line-height:1.65;
+    margin-top:12px; text-align:left; max-width:820px; margin-left:auto; margin-right:auto;
+  }
+  .teaser{background:var(--soft); padding:44px 0 40px; border-bottom:1px solid var(--line)}
+  .teaser figure{margin:0}
+  .half{display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:start}
+  .half figure{margin:0}
+
+  /* ---------- table ---------- */
+  .tablewrap{overflow-x:auto; margin:26px 0}
+  table{border-collapse:collapse; width:100%; font-size:15.5px; min-width:520px}
+  caption{caption-side:bottom; color:var(--muted); font-size:14.5px; padding-top:12px; text-align:left}
+  th,td{padding:11px 14px; border-bottom:1px solid var(--line); text-align:center}
+  th:first-child,td:first-child{text-align:left}
+  thead th{border-bottom:2px solid #c9d0d8; font-weight:700; white-space:nowrap}
+  tbody tr.ours{background:#eef4ff}
+  tbody tr.ours td{font-weight:700}
+  tbody tr:last-child td{border-bottom:2px solid #c9d0d8}
+
+  /* ---------- misc blocks ---------- */
+  ul{margin:0 0 18px; padding-left:22px}
+  li{margin-bottom:9px}
+  .keyval{list-style:none; padding:0}
+  .keyval li{display:flex; gap:14px; border-bottom:1px solid var(--line); padding:9px 0; margin:0}
+  .keyval b{flex:0 0 110px; font-weight:600}
+  .callout{
+    background:var(--soft); border-left:3px solid var(--accent);
+    border-radius:0 8px 8px 0; padding:16px 20px; margin:22px 0; font-size:16px;
+  }
+  .callout p:last-child{margin-bottom:0}
+  .hyp{font-style:italic; color:var(--muted)}
+  code.bib{
+    display:block; background:var(--soft); border:1px solid var(--line); border-radius:8px;
+    padding:20px 22px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:15px; color:var(--muted); overflow-x:auto;
+  }
+  footer{
+    border-top:1px solid var(--line); padding:34px 0 56px;
+    color:var(--muted); font-size:14px; text-align:center;
+  }
+  footer a{color:var(--muted); text-decoration:underline}
+
+  @media (max-width:640px){
+    body{font-size:16px}
+    section{padding:40px 0}
+    h2{font-size:24px}
+    .half{grid-template-columns:1fr}
+    .btn{padding:10px 18px; font-size:14.5px}
+    .keyval li{flex-direction:column; gap:2px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1 class="title">
+      <span class="name">HaptoFlow</span>
+      High-Fidelity Real-Time Vibrotactile Generation<br>via Flow Matching for Virtual Reality
+    </h1>
+
+    <p class="authors">
+      <a href="mailto:eguchi@mvml.slis.tsukuba.ac.jp">Michikuni Eguchi</a><sup>1,2</sup> &nbsp;
+      <a href="mailto:y.hiroi@cluster.mu">Yuichi Hiroi</a><sup>2</sup> &nbsp;
+      <a href="mailto:hiraki@slis.tsukuba.ac.jp">Takefumi Hiraki</a><sup>1,2</sup>
+    </p>
+    <p class="affil"><sup>1</sup>University of Tsukuba &nbsp;&nbsp;&nbsp; <sup>2</sup>Metaverse Lab, Cluster, Inc.</p>
+
+    <div class="links">
+      <span class="btn disabled">
+        <svg viewBox="0 0 384 512"><path d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z"/></svg>
+        Paper (coming soon)
+      </span>
+      <a class="btn" href="https://github.com/tamago117/HaptoFlow">
+        <svg viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="teaser">
+  <div class="wrap">
+    <figure>
+      <img src="static/images/teaser.jpg" alt="Overview of HaptoFlow and its integration into a VR system">
+      <figcaption>
+        <b>Overview of HaptoFlow and its integration into a VR system.</b>
+        HaptoFlow is a real-time vibrotactile generative model that produces realistic vibrotactile waveforms
+        conditioned on material labels and interaction parameters (stroking velocity and applied force).
+        Built on Flow Matching as its generative backbone, HaptoFlow outperforms existing models in both
+        waveform reproduction accuracy and inference latency. This model enables scalable haptic design
+        without manual authoring of individual waveforms.
+      </figcaption>
+    </figure>
+  </div>
+</div>
+
+<section id="abstract">
+  <div class="wrap narrow">
+    <h2>Abstract</h2>
+    <p>
+      Haptic feedback is widely employed to enhance immersion in Virtual Reality (VR) environments.
+      However, designing haptic stimuli that cover diverse interaction conditions remains a significant
+      scalability challenge. Data-driven haptic generation has emerged as a promising approach, yet existing
+      models face an inherent trade-off between waveform expressiveness and inference responsiveness, which
+      becomes increasingly critical as training data grow in scale and diversity.
+    </p>
+    <p>
+      To address this challenge, we propose <b>HaptoFlow</b>, a vibrotactile generative model based on
+      <b>Flow Matching</b>, designed for interactive real-time haptic rendering in VR. Flow Matching learns a
+      continuous vector field that transforms a base distribution into the target data distribution, enabling
+      efficient representation of complex haptic data distributions and thereby facilitating both high-quality
+      generation and computational efficiency. We train HaptoFlow conditioned on material labels and
+      interaction parameters (stroking velocity and applied force), and integrate it into a VR system.
+    </p>
+    <p>
+      Technical evaluation demonstrates that HaptoFlow outperforms all baseline methods in both waveform
+      reproduction accuracy and inference latency. Furthermore, user studies confirm that the system latency
+      falls well within the perceptual threshold of visual-haptic delay, and statistically significant
+      improvements in perceived haptic quality are observed for a subset of materials. These findings establish
+      a practical foundation for scalable, data-driven haptic content creation in VR, and provide latency
+      benchmarks that inform the design of future real-time haptic rendering systems.
+    </p>
+  </div>
+</section>
+
+<section id="method">
+  <div class="wrap">
+    <h2>Method</h2>
+
+    <figure>
+      <img class="bordered" src="static/images/architecture.png" alt="Architecture of HaptoFlow">
+      <figcaption>
+        <b>Architecture of the proposed model.</b>
+        (a) The model comprises a Signal Encoder-Decoder (EnCodec) and a Flow Matching module with a U-Net
+        backbone. (b) Material labels and interaction parameters are injected via FiLM conditioning at every
+        level of the U-Net.
+      </figcaption>
+    </figure>
+
+    <div class="narrow">
+      <p>
+        At each rendering step, HaptoFlow takes a <b>material label</b>, <b>interaction parameters</b>
+        (2D stylus velocity and applied force), and the <b>waveform generated at the previous timestep</b>,
+        and outputs the vibrotactile waveform for the current timestep.
+      </p>
+
+      <h3>Flow Matching module</h3>
+      <p>
+        A U-Net backbone (two levels, 128 and 256 channels) estimates a conditional vector field in a latent
+        space that transports a Gaussian noise sample toward the target waveform distribution, trained with the
+        Conditional Flow Matching loss. Because the model learns the conditional <i>distribution</i> rather than
+        a point estimate, it avoids the averaging artifacts that deterministic regression baselines exhibit on
+        multimodal haptic data. The conditioning inputs &mdash; a material embedding, an MLP over the interaction
+        parameters, and a sinusoidal encoding of the Flow Matching time variable &mdash; are each projected to
+        64 dimensions and injected into every U-Net level via FiLM. To keep successive frames continuous, the
+        previously generated waveform is encoded and concatenated with the feature map at each downsampling stage.
+      </p>
+
+      <h3>Signal Encoder-Decoder</h3>
+      <p>
+        A pre-trained, frozen <b>EnCodec</b> (24&nbsp;kHz sampling rate, 6&nbsp;kHz bandwidth) compresses haptic
+        waveforms into a compact continuous latent representation, reducing both training cost and inference
+        latency. Operating in this latent space lets the ODE solver run for a <b>single step</b> at inference:
+        1 step reaches GFC 0.96 with EnCodec, versus 0.64 when Flow Matching operates directly on raw waveforms.
+      </p>
+
+      <h3>Training data</h3>
+      <p>
+        The model is trained on the
+        <a href="https://arxiv.org/abs/2407.16206">Cluster Haptic Texture Dataset</a>, which records vibrotactile
+        waveforms and the corresponding interaction parameters for 118 materials across 10 categories.
+        One representative material per category was selected to span distinct tactile characteristics.
+        Three-axis accelerometer data are reduced to a single axis with DFT321, downsampled to 2&nbsp;kHz,
+        segmented into 100&nbsp;ms frames with a sliding window, and normalized to the range [&minus;1,&nbsp;1].
+      </p>
+    </div>
+
+    <figure>
+      <img src="static/images/materials.jpg" alt="Materials used for training and evaluation">
+      <figcaption><b>Materials used for training and evaluation.</b></figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="system">
+  <div class="wrap">
+    <h2>VR System</h2>
+
+    <figure>
+      <img class="bordered" src="static/images/vr_system.png" alt="Overview of the VR haptic system">
+      <figcaption>
+        <b>Overview of the VR haptic system.</b>
+        At each rendering step, HaptoFlow receives stylus velocity, contact force, a material label, and the
+        previously generated waveform to produce real-time vibrotactile feedback via an actuator-equipped stylus.
+      </figcaption>
+    </figure>
+
+    <div class="narrow">
+      <ul class="keyval">
+        <li><b>HMD</b><span>Meta Quest 3 (72&nbsp;Hz)</span></li>
+        <li><b>Stylus</b><span>MX Ink (Logicool), 3D-tracked via Meta Quest 3</span></li>
+        <li><b>Actuator</b><span>Haptic Reactor (Foster Electric)</span></li>
+        <li><b>Amplifier</b><span>PAM8012 (Diodes Incorporated)</span></li>
+      </ul>
+      <p style="margin-top:22px">
+        When the stylus contacts a virtual object, the 3D stylus velocity is projected onto the tangent plane of
+        the contact surface to obtain the 2D velocity, and the applied force is approximated with a spring model
+        from the penetration depth. The generated 100&nbsp;ms waveform is buffered and routed to the actuator
+        through Unity's audio output system.
+      </p>
+      <div class="callout">
+        <p>
+          The fixed hardware delays &mdash; a 14&nbsp;ms controller pose update interval plus roughly 3&nbsp;ms of
+          actuator rise/fall time &mdash; sum to <b>17&nbsp;ms</b>, giving a worst-case end-to-end visual-haptic
+          delay of <b>about 22&nbsp;ms</b> with HaptoFlow's 5.2&nbsp;ms inference.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap">
+    <h2>Technical Evaluation</h2>
+
+    <div class="narrow">
+      <p class="hyp">
+        <b>H1</b>: The proposed Flow Matching-based model achieves (a) higher waveform reproduction accuracy
+        (GFC, RMSE) and (b) lower inference latency than the baseline methods trained with deterministic
+        reconstruction losses. &rarr; <b style="color:var(--fg); font-style:normal">Supported</b>
+      </p>
+
+      <div class="tablewrap">
+        <table>
+          <caption>
+            Waveform reproduction accuracy and inference latency of each vibrotactile generative model.
+            Mean and standard deviation over five runs with different random seeds.
+          </caption>
+          <thead>
+            <tr><th>Model</th><th>GFC &uarr;</th><th>RMSE &darr;</th><th>Latency (ms) &darr;</th></tr>
+          </thead>
+          <tbody>
+            <tr class="ours"><td>HaptoFlow (Ours)</td><td>0.96 &plusmn; 0.04</td><td>0.22 &plusmn; 0.33</td><td>5.2 &plusmn; 1.0</td></tr>
+            <tr><td>Transformer</td><td>0.74 &plusmn; 0.17</td><td>0.39 &plusmn; 0.41</td><td>13.4 &plusmn; 3.4</td></tr>
+            <tr><td>DSTN</td><td>0.94 &plusmn; 0.05</td><td>0.30 &plusmn; 0.36</td><td>11.9 &plusmn; 2.8</td></tr>
+            <tr><td>SPSI</td><td>0.73 &plusmn; 0.15</td><td>0.49 &plusmn; 0.44</td><td>6.2 &plusmn; 1.8</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <figure>
+      <img src="static/images/results.png" alt="Ground truth and generated waveforms for each model">
+      <figcaption>
+        <b>Ground truth and output waveforms of each model for six representative samples,</b>
+        shown as (a) raw time-domain signals and (b) frequency spectra zoomed into the 0&ndash;500&nbsp;Hz range
+        relevant to vibrotactile perception.
+      </figcaption>
+    </figure>
+
+    <div class="narrow">
+      <p>
+        Transformer produces overly smooth outputs with attenuated high-frequency components &mdash; the signature
+        of MSE-based deterministic regression collapsing toward the distributional mean when the haptic data are
+        multimodal. SPSI exhibits global phase shifts, indicating that its non-iterative phase recovery fails to
+        maintain continuity with preceding waveform segments. DSTN approaches HaptoFlow in GFC (0.94 vs. 0.96)
+        but requires roughly twice the inference time (11.9&nbsp;ms vs. 5.2&nbsp;ms).
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="study-latency">
+  <div class="wrap">
+    <h2>User Study 1 &mdash; Visual-Haptic Latency Perception</h2>
+
+    <div class="narrow">
+      <p class="hyp">
+        <b>H2</b>: The total end-to-end system latency, including the inference time of the proposed model,
+        falls below the human perceptual threshold for visual-haptic delay when using a VR HMD with a stylus pen.
+        &rarr; <b style="color:var(--fg); font-style:normal">Supported</b>
+      </p>
+      <p>
+        Twenty-four participants traced a virtual object with the stylus and reported whether they perceived a
+        delay between the pen motion and the onset (<i>Turn-On</i>) or cessation (<i>Turn-Off</i>) of haptic
+        feedback, across 11 artificially introduced latency levels from 50 to 250&nbsp;ms in 20&nbsp;ms steps.
+      </p>
+    </div>
+
+    <figure>
+      <img src="static/images/latency_setup.jpg" alt="Experimental setup of the latency perception study">
+      <figcaption>
+        <b>Experimental situation.</b> (a) VR scene viewed through the HMD, with a virtual object and
+        questionnaire form on a dark background. (b) A participant during the experiment.
+      </figcaption>
+    </figure>
+
+    <figure>
+      <img src="static/images/latency.png" alt="Latency perception results">
+      <figcaption>
+        <b>Percentages of positive answers for latency perception</b> under the <i>Turn-On</i> and
+        <i>Turn-Off</i> conditions. Points are means, error bars the standard error, and the dashed curves
+        the fitted psychometric functions.
+      </figcaption>
+    </figure>
+
+    <div class="narrow">
+      <div class="callout">
+        <p>
+          Taking the 50&nbsp;% crossing point of the fitted sigmoid gives perceptual delay thresholds of
+          <b>130.3&nbsp;ms</b> (Turn-On) and <b>107.7&nbsp;ms</b> (Turn-Off) &mdash; both far above our system's
+          ~22&nbsp;ms end-to-end latency.
+        </p>
+      </div>
+      <p>
+        To the best of our knowledge, these are the first reported visual-haptic delay thresholds for a VR HMD
+        combined with a stylus pen. They are lower than the 160&nbsp;ms reported for a tabletop projection
+        display with a stylus, possibly because a VR HMD replaces the entire visual field and heightens
+        sensitivity to visual-haptic asynchrony, and they can serve as a practical latency budget for future
+        real-time haptic rendering systems.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="study-similarity">
+  <div class="wrap">
+    <h2>User Study 2 &mdash; Perceptual Similarity to Real Objects</h2>
+
+    <div class="narrow">
+      <p class="hyp">
+        <b>H3</b>: Haptic stimuli generated by the proposed model receive higher perceptual similarity ratings to
+        real objects than those generated by baseline methods.
+        &rarr; <b style="color:var(--fg); font-style:normal">Partially supported</b>
+      </p>
+      <p>
+        The same 24 participants alternately traced a real object and its virtual counterpart with the stylus and
+        rated the similarity of the haptic sensation on a 7-point Likert scale, for 6 materials &times; 4 methods.
+        The end-to-end system latency was equalized across methods so that waveform quality was the only variable
+        under evaluation, and the real objects were kept out of view to avoid visual bias.
+      </p>
+    </div>
+
+    <figure>
+      <img src="static/images/similarity_setup.jpg" alt="Experimental setup of the perceptual similarity study">
+      <figcaption>
+        <b>Experimental situation.</b> (a) VR scene showing two visually identical objects (real and virtual) and
+        a similarity rating form. (b) A participant stroking a physical material while wearing the HMD, without
+        seeing its appearance.
+      </figcaption>
+    </figure>
+
+    <figure>
+      <img src="static/images/similarity.png" alt="Perceptual similarity ratings">
+      <figcaption>
+        <b>Perceptual similarity ratings on a 7-point Likert scale for each material and method.</b>
+        Bars are means, error bars the standard error. Brackets indicate pairwise statistical comparisons:
+        &dagger; a trend toward significance (<i>p</i> &lt; 0.1), * a significant difference
+        (<i>p</i> &lt; 0.05), and green &asymp; statistical equivalence (<i>p</i> &lt; 0.05).
+      </figcaption>
+    </figure>
+
+    <div class="narrow">
+      <ul>
+        <li>
+          HaptoFlow was rated <b>significantly higher than Transformer for Jute</b> (<i>p</i> = 0.013) and showed a
+          <b>marginal trend over DSTN for Ceramic</b> (<i>p</i> = 0.075). Both are hard, high-roughness materials
+          whose vibrotactile signals have prominent spectral peaks that HaptoFlow reproduces most faithfully.
+        </li>
+        <li>
+          HaptoFlow was rated <b>significantly lower than DSTN for Fur</b> (<i>p</i> = 0.047), although all methods
+          scored uniformly low (approximately 2&ndash;3): the tactile sensation of Fur is dominated by compliance
+          cues that vibrotactile feedback alone cannot convey.
+        </li>
+        <li>
+          For every material except Ceramic, TOST confirmed statistical <b>equivalence</b> with one or more
+          baselines, suggesting that the waveform accuracy differences among methods do not always exceed human
+          perceptual thresholds.
+        </li>
+      </ul>
+      <p>
+        The gap between high signal-level accuracy and moderate perceptual ratings points to limits in
+        training-data diversity and actuator bandwidth rather than in the generative framework itself.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="applications">
+  <div class="wrap">
+    <h2>Applications</h2>
+
+    <figure>
+      <img src="static/images/applications.jpg" alt="Application scenarios">
+      <figcaption>
+        <b>Application scenarios of the VR system integrated with the proposed model.</b>
+        (a) Scalable haptic authoring: material labels assigned to virtual objects drive on-the-fly haptic
+        generation. (b) Surface texture design support: designers evaluate the tactile feel of different
+        materials in VR without physical prototyping.
+      </figcaption>
+    </figure>
+
+    <div class="narrow">
+      <h3>Scalable haptic authoring for VR</h3>
+      <p>
+        Assigning a material label to each virtual object and streaming interaction parameters to the model yields
+        contextually appropriate waveforms on the fly, with no per-material manual authoring. The approach is not
+        tied to the stylus used here: amplitude-modulation-based actuation makes it compatible with controllers
+        such as the Meta Quest Touch Plus.
+      </p>
+      <h3>Support for surface texture design</h3>
+      <p>
+        Designers can iteratively query the model with target material labels and feel the resulting texture in
+        real time, evaluating a product surface's tactile feel during the design process itself and reducing the
+        need for costly physical prototyping.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="limitations">
+  <div class="wrap narrow">
+    <h2>Limitations</h2>
+    <ul>
+      <li>
+        <b>Training data.</b> The Cluster Haptic Texture Dataset was recorded with an artificial finger on a
+        numerically controlled machine at fixed speeds and forces, so its distribution may not cover the diversity
+        of unconstrained human interaction, such as a varying stylus contact angle.
+      </li>
+      <li>
+        <b>Actuator bandwidth.</b> The frequency response of the Haptic Reactor is not flat &mdash; the
+        50&ndash;100&nbsp;Hz region is attenuated and low-amplitude texture cues can fall below its dynamic range.
+      </li>
+      <li>
+        <b>Single-axis rendering.</b> Three-axis acceleration is collapsed via DFT321; the perceptual cost of this
+        reduction, and the lateral shear force relevant to soft, high-friction materials such as Fur, remain
+        unexamined.
+      </li>
+      <li>
+        <b>Discrete material labels.</b> Generation is restricted to materials seen during training; richer
+        conditioning such as text or images would require a front-end module mapping onto the material embedding
+        space.
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section id="bibtex">
+  <div class="wrap narrow">
+    <h2>BibTeX</h2>
+    <p style="text-align:center; color:var(--muted); margin:0">Coming soon.</p>
+  </div>
+</section>
+
+<section id="acknowledgments">
+  <div class="wrap narrow">
+    <h2>Acknowledgments</h2>
+    <p>
+      This study was supported by JST ACT-X Grant Number JPMJAX25C4 and JSPS KAKENHI Grant Number JP25H00722,
+      Japan.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>
+      &copy; 2026 Michikuni Eguchi, Yuichi Hiroi, Takefumi Hiraki &nbsp;&middot;&nbsp;
+      <a href="https://github.com/tamago117/HaptoFlow">github.com/tamago117/HaptoFlow</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
