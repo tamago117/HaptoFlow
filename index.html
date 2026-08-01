@@ -15,7 +15,7 @@
 <style>
   :root{
     --fg:#1a1a1a; --muted:#5b6470; --bg:#ffffff; --soft:#f5f7fa;
-    --line:#e3e7ec; --accent:#1f6feb; --accent-dark:#144a9e;
+    --line:#e3e7ec; --accent:#1f6feb; --accent-dark:#144a9e; --cyan:#0097b2;
     --maxw:960px;
   }
   *{box-sizing:border-box}
@@ -32,20 +32,29 @@
 
   /* ---------- header ---------- */
   header{padding:64px 0 8px; text-align:center; border-bottom:1px solid var(--line)}
+  header .wrap{max-width:1180px}
   h1.title{
-    font-size:clamp(28px,4.4vw,44px); line-height:1.25; font-weight:700;
-    margin:0 0 6px; letter-spacing:-.015em;
+    font-size:clamp(26px,3.2vw,40px); line-height:1.28; font-weight:700;
+    margin:0 0 6px; letter-spacing:-.015em; text-wrap:balance;
   }
-  h1.title .name{display:block; font-size:1.18em; letter-spacing:.01em}
+  h1.title .name{
+    display:block; font-size:1.3em; letter-spacing:.01em; margin-bottom:2px;
+    color:var(--cyan);
+  }
   .authors{margin:22px 0 6px; font-size:19px}
   .authors a{color:var(--fg); border-bottom:1px solid transparent}
   .authors a:hover{color:var(--accent); border-color:var(--accent); text-decoration:none}
   .authors sup{color:var(--accent); font-size:.7em}
   .affil{color:var(--muted); font-size:15px; margin:0 0 4px}
   .affil sup{color:var(--accent)}
+  .venue{margin:16px 0 0; font-size:19px; font-weight:700; color:var(--accent)}
+  .venue span{
+    display:block; font-size:14.5px; font-weight:400; color:var(--muted); margin-top:2px;
+  }
 
   /* ---------- buttons ---------- */
-  .links{display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin:30px 0 46px}
+  .links{display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin:30px 0 0}
+  .release-note{color:var(--muted); font-size:15px; margin:16px 0 46px}
   .btn{
     display:inline-flex; align-items:center; gap:9px;
     padding:11px 22px; border-radius:999px;
@@ -151,6 +160,7 @@
       <a href="mailto:hiraki@slis.tsukuba.ac.jp">Takefumi Hiraki</a><sup>1,2</sup>
     </p>
     <p class="affil"><sup>1</sup>University of Tsukuba &nbsp;&nbsp;&nbsp; <sup>2</sup>Metaverse Lab, Cluster, Inc.</p>
+    <p class="venue">ISMAR 2026<span>IEEE International Symposium on Mixed and Augmented Reality</span></p>
 
     <div class="links">
       <span class="btn disabled">
@@ -162,6 +172,8 @@
         GitHub
       </a>
     </div>
+
+    <p class="release-note">Code is coming soon.</p>
   </div>
 </header>
 
@@ -240,24 +252,22 @@
         space that transports a Gaussian noise sample toward the target waveform distribution, trained with the
         Conditional Flow Matching loss. Because the model learns the conditional <i>distribution</i> rather than
         a point estimate, it avoids the averaging artifacts that deterministic regression baselines exhibit on
-        multimodal haptic data. The conditioning inputs &mdash; a material embedding, an MLP over the interaction
-        parameters, and a sinusoidal encoding of the Flow Matching time variable &mdash; are each projected to
-        64 dimensions and injected into every U-Net level via FiLM. To keep successive frames continuous, the
-        previously generated waveform is encoded and concatenated with the feature map at each downsampling stage.
+        multimodal haptic data. The conditioning inputs, a material embedding, an MLP over the interaction
+        parameters, and a sinusoidal encoding of the Flow Matching time variable, are each projected to
+        64 dimensions and injected into every U-Net level via FiLM.
       </p>
 
       <h3>Signal Encoder-Decoder</h3>
       <p>
         A pre-trained, frozen <b>EnCodec</b> (24&nbsp;kHz sampling rate, 6&nbsp;kHz bandwidth) compresses haptic
         waveforms into a compact continuous latent representation, reducing both training cost and inference
-        latency. Operating in this latent space lets the ODE solver run for a <b>single step</b> at inference:
-        1 step reaches GFC 0.96 with EnCodec, versus 0.64 when Flow Matching operates directly on raw waveforms.
+        latency. Operating in this latent space lets the ODE solver run for a <b>single step</b> at inference.
       </p>
 
       <h3>Training data</h3>
       <p>
         The model is trained on the
-        <a href="https://arxiv.org/abs/2407.16206">Cluster Haptic Texture Dataset</a>, which records vibrotactile
+        <a href="https://github.com/cluster-lab/Cluster-Haptic-Texture-Dataset">Cluster Haptic Texture Dataset</a>, which records vibrotactile
         waveforms and the corresponding interaction parameters for 118 materials across 10 categories.
         One representative material per category was selected to span distinct tactile characteristics.
         Three-axis accelerometer data are reduced to a single axis with DFT321, downsampled to 2&nbsp;kHz,
@@ -298,13 +308,6 @@
         from the penetration depth. The generated 100&nbsp;ms waveform is buffered and routed to the actuator
         through Unity's audio output system.
       </p>
-      <div class="callout">
-        <p>
-          The fixed hardware delays &mdash; a 14&nbsp;ms controller pose update interval plus roughly 3&nbsp;ms of
-          actuator rise/fall time &mdash; sum to <b>17&nbsp;ms</b>, giving a worst-case end-to-end visual-haptic
-          delay of <b>about 22&nbsp;ms</b> with HaptoFlow's 5.2&nbsp;ms inference.
-        </p>
-      </div>
     </div>
   </div>
 </section>
@@ -347,16 +350,6 @@
         relevant to vibrotactile perception.
       </figcaption>
     </figure>
-
-    <div class="narrow">
-      <p>
-        Transformer produces overly smooth outputs with attenuated high-frequency components &mdash; the signature
-        of MSE-based deterministic regression collapsing toward the distributional mean when the haptic data are
-        multimodal. SPSI exhibits global phase shifts, indicating that its non-iterative phase recovery fails to
-        maintain continuity with preceding waveform segments. DSTN approaches HaptoFlow in GFC (0.94 vs. 0.96)
-        but requires roughly twice the inference time (11.9&nbsp;ms vs. 5.2&nbsp;ms).
-      </p>
-    </div>
   </div>
 </section>
 
@@ -402,13 +395,6 @@
           ~22&nbsp;ms end-to-end latency.
         </p>
       </div>
-      <p>
-        To the best of our knowledge, these are the first reported visual-haptic delay thresholds for a VR HMD
-        combined with a stylus pen. They are lower than the 160&nbsp;ms reported for a tabletop projection
-        display with a stylus, possibly because a VR HMD replaces the entire visual field and heightens
-        sensitivity to visual-haptic asynchrony, and they can serve as a practical latency budget for future
-        real-time haptic rendering systems.
-      </p>
     </div>
   </div>
 </section>
@@ -505,33 +491,6 @@
         need for costly physical prototyping.
       </p>
     </div>
-  </div>
-</section>
-
-<section id="limitations">
-  <div class="wrap narrow">
-    <h2>Limitations</h2>
-    <ul>
-      <li>
-        <b>Training data.</b> The Cluster Haptic Texture Dataset was recorded with an artificial finger on a
-        numerically controlled machine at fixed speeds and forces, so its distribution may not cover the diversity
-        of unconstrained human interaction, such as a varying stylus contact angle.
-      </li>
-      <li>
-        <b>Actuator bandwidth.</b> The frequency response of the Haptic Reactor is not flat &mdash; the
-        50&ndash;100&nbsp;Hz region is attenuated and low-amplitude texture cues can fall below its dynamic range.
-      </li>
-      <li>
-        <b>Single-axis rendering.</b> Three-axis acceleration is collapsed via DFT321; the perceptual cost of this
-        reduction, and the lateral shear force relevant to soft, high-friction materials such as Fur, remain
-        unexamined.
-      </li>
-      <li>
-        <b>Discrete material labels.</b> Generation is restricted to materials seen during training; richer
-        conditioning such as text or images would require a front-end module mapping onto the material embedding
-        space.
-      </li>
-    </ul>
   </div>
 </section>
 
