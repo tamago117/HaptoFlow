@@ -22,7 +22,7 @@ Takefumi Hiraki<sup>1,2</sup>
   <img src="https://img.shields.io/badge/License-Apache%202.0-2ea44f?style=for-the-badge&logo=apache&logoColor=white" height="38" alt="License">
 </a>
 
-<img src="docs/images/teaser.jpg" width="100%" alt="HaptoFlow teaser">
+<img src="docs/images/teaser.png" width="100%" alt="HaptoFlow teaser">
 
 </div>
 
