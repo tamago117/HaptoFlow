@@ -10,6 +10,9 @@ Takefumi Hiraki<sup>1,2</sup>
 
 <sup>1</sup> University of Tsukuba &nbsp;&nbsp; <sup>2</sup> Metaverse Lab, Cluster, Inc.
 
+**ISMAR 2026**<br>
+<sub>IEEE International Symposium on Mixed and Augmented Reality</sub>
+
 <a href="https://tamago117.github.io/HaptoFlow/">
   <img src="https://img.shields.io/badge/Project%20Page-HaptoFlow-1f6feb?style=for-the-badge&logo=githubpages&logoColor=white" height="38" alt="Project Page">
 </a>
