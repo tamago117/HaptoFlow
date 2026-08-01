@@ -77,8 +77,18 @@
     color:var(--muted); font-size:14.5px; line-height:1.65;
     margin-top:12px; text-align:left; max-width:820px; margin-left:auto; margin-right:auto;
   }
-  .teaser{background:var(--soft); padding:44px 0 40px; border-bottom:1px solid var(--line)}
+  .teaser{background:var(--soft); padding:44px 0 46px; border-bottom:1px solid var(--line)}
   .teaser figure{margin:0}
+  .overview{
+    max-width:820px; margin:34px auto 0; padding:26px 32px 28px;
+    background:var(--bg); border:2px solid var(--accent); border-radius:12px;
+    box-shadow:0 2px 14px rgba(31,111,235,.08);
+  }
+  .overview h2{
+    font-size:19px; margin:0 0 10px; text-align:left;
+    text-transform:uppercase; letter-spacing:.09em; color:var(--accent);
+  }
+  .overview p{margin:0; font-size:16.5px}
   .half{display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:start}
   .half figure{margin:0}
 
@@ -159,15 +169,18 @@
   <div class="wrap">
     <figure>
       <img src="static/images/teaser.jpg" alt="Overview of HaptoFlow and its integration into a VR system">
-      <figcaption>
-        <b>Overview of HaptoFlow and its integration into a VR system.</b>
-        HaptoFlow is a real-time vibrotactile generative model that produces realistic vibrotactile waveforms
-        conditioned on material labels and interaction parameters (stroking velocity and applied force).
-        Built on Flow Matching as its generative backbone, HaptoFlow outperforms existing models in both
-        waveform reproduction accuracy and inference latency. This model enables scalable haptic design
-        without manual authoring of individual waveforms.
-      </figcaption>
     </figure>
+
+    <div class="overview">
+      <h2>Overview</h2>
+      <p>
+        <b>HaptoFlow</b> is a real-time vibrotactile generative model that produces realistic vibrotactile
+        waveforms conditioned on material labels and interaction parameters (stroking velocity and applied
+        force). Built on Flow Matching as its generative backbone, HaptoFlow outperforms existing models in
+        both waveform reproduction accuracy and inference latency. This model enables scalable haptic design
+        without manual authoring of individual waveforms.
+      </p>
+    </div>
   </div>
 </div>
 
