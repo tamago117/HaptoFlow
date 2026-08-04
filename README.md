@@ -17,8 +17,8 @@ Takefumi Hiraki<sup>1,2</sup>
   <img src="https://img.shields.io/badge/Project%20Page-HaptoFlow-1f6feb?style=for-the-badge&logo=githubpages&logoColor=white" height="38" alt="Project Page">
 </a>
 &nbsp;
-<a href="https://tamago117.github.io/HaptoFlow/">
-  <img src="https://img.shields.io/badge/Paper-coming%20soon-b31b1b?style=for-the-badge&logo=arxiv&logoColor=white" height="38" alt="Paper">
+<a href="https://arxiv.org/abs/2608.01974">
+  <img src="https://img.shields.io/badge/arXiv-2608.01974-b31b1b?style=for-the-badge&logo=arxiv&logoColor=white" height="38" alt="arXiv">
 </a>
 &nbsp;
 <a href="LICENSE">
@@ -49,7 +49,17 @@ Code and pre-trained models are not released yet. They will be made available in
 
 ## Citation
 
-Coming soon.
+```bibtex
+@misc{eguchi2026haptoflowhighfidelityrealtimevibrotactile,
+      title={HaptoFlow: High-Fidelity Real-Time Vibrotactile Generation via Flow Matching for Virtual Reality},
+      author={Michikuni Eguchi and Yuichi Hiroi and Takefumi Hiraki},
+      year={2026},
+      eprint={2608.01974},
+      archivePrefix={arXiv},
+      primaryClass={cs.HC},
+      url={https://arxiv.org/abs/2608.01974},
+}
+```
 
 ## Acknowledgments
 
