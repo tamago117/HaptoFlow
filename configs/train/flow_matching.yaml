@@ -1,0 +1,30 @@
+_base: _base.yaml
+
+model:
+  in_ch: null  # Auto-calculated from the EnCodec latent channels (embed_dim)
+  base_ch: 128
+  ch_mults: [1, 2]
+  cond_dim: 64
+  time_embed_dim: 64
+  groups: 8
+  use_prev_segment: true
+  prev_segment_encoder:
+    groups: 4
+    use_positional_embedding: true
+    pos_embed_dim: null
+    pos_embed_max_distance: null
+  control_embedding:
+    out_dim: 64
+    use_sinusoidal: true
+
+train:
+  ckpt_dir: runs/haptoflow
+  cond_dropout: 0.1  # null label/control condition for classifier-free guidance
+
+sampling:
+  steps: 2
+  solver: heun  # euler | heun 
+  guidance_scale: 1.0  # classifier-free guidance (1.0 = off; > 1 doubles the net evals)
+
+wandb:
+  run_name: haptoflow

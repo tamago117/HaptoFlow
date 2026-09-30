@@ -1,0 +1,24 @@
+# Phase 2 (self-forcing); run with --init-from <phase1 ckpt>. See docs/training_phases.md
+_base: flow_matching.yaml
+
+optim:
+  lr: 0.0002
+
+scheduler:
+  cosine:
+    warmup_ratio: 0.0
+
+sampling:
+  steps: 8
+  guidance_scale: 3.0
+
+train:
+  epochs: 10
+  data_augmentation:
+    zero_prev:  # chain start from a zero prev, as at serving
+      prob: 0.3
+  self_forcing:
+    num_unroll: 10
+    prob: 0.5
+    loss_pairs: 3  # pairs per chain in the loss
+    loss_reduction: "mean"

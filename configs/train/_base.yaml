@@ -1,0 +1,79 @@
+seed: 42
+
+data:
+  root: datasets/texture_dataset_accel_converted
+  # root: datasets/texture_dataset_audio_converted
+
+  batch_size: 512
+  num_workers: 24
+  pin_memory: true
+  prefetch_factor: 4
+  split: [0.7, 0.2, 0.1]  # train, val, test
+  window_hop: 0.7  # window stride / segment length
+
+# Flow matching is trained on the EnCodec continuous latent.
+encodec:
+  model_name: "24khz"  # [24khz|48khz]
+  bandwidth_kbps: 6.0
+
+optim:
+  lr: 0.001
+  weight_decay: 0.0001
+  betas: [0.9, 0.999]
+
+scheduler:
+  type: cosine  # [none|cosine]
+  cosine:
+    T_max: null
+    eta_min: 0.0
+    warmup_ratio: 0.1  # fraction of the cosine schedule (T_max) spent in linear warmup
+
+train:
+  epochs: 50
+
+  grad_clip: 1.0
+  amp: false
+  ema_decay: null  # e.g. 0.999: EMA weights go to model.safetensors and val/test
+  val_interval: 5
+  val_img_interval: 5
+  ckpt_interval: 5
+  print_interval: 100
+  val_metric_batches: 1  # val batches used for generation-based metrics
+
+  # STFT / Mel parameters for the spectral metrics and spectrogram images
+  stft:
+    n_fft: 1024
+    hop_length: 128
+    win_length: 1024
+
+  mel:
+    n_mels: 64
+    f_min: 0.0
+    f_max: null
+
+  data_augmentation:
+
+  memory_guard:
+    enabled: true
+    abort_available_gb: 6.0
+    kill_available_gb: 3.0
+    save_checkpoint: true
+
+eval:
+  num_samples: 60
+  self_forcing:  # val chain-generation metrics
+    num_unroll: 9
+    num_chains: 64
+
+visualization:
+  render_prev_waveform: true
+  prev_waveform_ratio: 0.1
+  enable_stft_spectrum: true
+  enable_spectrogram: true
+  enable_mel_spectrogram: true
+  waveform_ylim: [-1.2, 1.2]
+
+wandb:
+  project: haptoflow
+  entity: null
+  mode: online

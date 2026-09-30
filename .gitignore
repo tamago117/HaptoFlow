@@ -1,1 +1,45 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.so
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Tool caches
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Secrets / local env
+.env
+.env.*
+
+# --- Project data and outputs ---
+# Datasets (downloaded from the Hugging Face Hub or produced by the converter)
+datasets/
+# Training runs (train.ckpt_dir) and W&B local logs
+runs/
+wandb/
+# Visualization outputs
+.output/
+# Local model checkpoints (weights are distributed via the Hugging Face Hub)
+checkpoints/*
+!checkpoints/.gitkeep
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Claude Code ---
 .claude

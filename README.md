@@ -21,6 +21,10 @@ Takefumi Hiraki<sup>1,2</sup>
   <img src="https://img.shields.io/badge/arXiv-2608.01974-b31b1b?style=for-the-badge&logo=arxiv&logoColor=white" height="38" alt="arXiv">
 </a>
 &nbsp;
+<a href="https://huggingface.co/tamago117/HaptoFlow">
+  <img src="https://img.shields.io/badge/Weights-Hugging%20Face-ffcc4d?style=for-the-badge&logo=huggingface&logoColor=black" height="38" alt="Weights on Hugging Face">
+</a>
+&nbsp;
 <a href="LICENSE">
   <img src="https://img.shields.io/badge/License-Apache%202.0-2ea44f?style=for-the-badge&logo=apache&logoColor=white" height="38" alt="License">
 </a>
@@ -43,9 +47,84 @@ Technical evaluation demonstrates that HaptoFlow outperforms all baseline method
 <img src="docs/images/architecture.png" width="100%" alt="HaptoFlow architecture">
 </div>
 
-## Status
+## Getting Started
 
-Code and pre-trained models are not released yet. They will be made available in this repository.
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/tamago117/HaptoFlow.git
+cd HaptoFlow
+```
+
+### 2. Set up the environment
+
+The project is managed with [uv](https://docs.astral.sh/uv/) (Python 3.10+). A CUDA GPU is recommended.
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh   # if uv is not installed yet
+uv sync
+```
+
+On Windows, `uv sync` installs the CPU build of PyTorch; see [docs/setup.md](docs/setup.md#windows-installing-pytorch-with-gpu-cuda-support) for the CUDA wheels.
+
+To use Docker instead, see [docs/setup.md](docs/setup.md#docker).
+
+### 3. Run the demo app
+
+```bash
+uv run scripts/serving/app_generate_waveform.py
+```
+
+Open http://127.0.0.1:7860. The pre-trained weights are downloaded from [Hugging Face](https://huggingface.co/tamago117/HaptoFlow) on first use:
+
+| Model | Trained on |
+| --- | --- |
+| `hf://tamago117/HaptoFlow/haptoflow_accel` (default) | accelerometer |
+| `hf://tamago117/HaptoFlow/haptoflow_audio` | audio |
+
+<div align="center">
+<img src="docs/images/app.png" width="100%" alt="HaptoFlow demo app">
+</div>
+
+## Training
+
+HaptoFlow is trained on the [Cluster Haptic Texture Dataset](https://huggingface.co/datasets/tamago117/cluster-haptic-texture-dataset) in two phases: the model is first trained, then fine-tuned on its own generations for stable continuous generation.
+
+### 1. Download the dataset
+
+```bash
+uv run scripts/dataset/download_dataset.py
+```
+
+See [docs/dataset.md](docs/dataset.md) for details.
+
+### 2. Convert it into a training dataset
+
+```bash
+uv run scripts/dataset/convert_dataset.py --config configs/dataset/convert_dataset.yaml
+```
+
+The recordings are preprocessed into the format used for training. See [docs/dataset_converter.md](docs/dataset_converter.md) for the options.
+
+### 3. Phase 1
+
+```bash
+uv run scripts/train.py --model flow_matching -r haptoflow_phase1
+```
+
+### 4. Phase 2
+
+```bash
+uv run scripts/train.py --model flow_matching \
+    --config configs/train/flow_matching_phase2.yaml \
+    --init-from runs/haptoflow_phase1/epoch_0050 -r haptoflow_phase2
+```
+
+See [docs/training_phases.md](docs/training_phases.md) for details.
+
+### 5. Try your model in the app
+
+Copy a trained checkpoint under `checkpoints/` and select it in the app.
 
 ## Citation
 

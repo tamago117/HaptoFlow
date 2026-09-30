@@ -1,0 +1,52 @@
+input:
+  dir: datasets/texture_dataset
+  pattern: null  # auto-set from sensor_type
+  limit: null  # max number of files (null = all)
+  sample_rate: 22000  # Hz; audio decode rate, and the fallback when a rate cannot be estimated
+
+output:
+  dir: null  # null = {input_dir}_converted
+  meta_path: null  # null = {output_dir}/meta.jsonl
+  dataset_info_path: null  # null = {output_dir}/dataset_info.json
+  group_by_label: true  # one subdirectory per label
+
+# Its presence selects the cluster converter.
+cluster_dataset:
+  sensor_type: accel  # [audio|accel]
+  # accel only: "dft321" (3 axes -> 1), or a list from ["X", "Y", "Z", "Norm"]; null = all 4
+  accel_transform: dft321
+  # If set, input.dir = {base_dir}/sensor_data/{sensor_type}; otherwise inferred from input.dir
+  base_dir: null
+  texture_list_path: datasets/texture_dataset/texture_list.xlsx  # texture ID -> material name
+
+preprocessing:
+  trim_start: 0.3  # s
+  trim_end: 0.3  # s
+  # Normalize by the dataset-wide peak (adds a first pass over all files)
+  global_peak_normalize: true
+  global_peak_epsilon: 1.0e-8  # skip normalization if peak <= epsilon
+  # Use a percentile of per-stream peaks instead of the max, to ignore outliers
+  global_peak_ignore_outliers: true
+  global_peak_outlier_percentile: 80  # (0, 100]
+  # Applied after trimming, before segmentation; cutoff is required when enabled
+  lowpass_enabled: true
+  lowpass_cutoff_hz: 1000
+  lowpass_order: null  # null = 4 (butter) / 129 taps (fir)
+  lowpass_type: butter  # [butter|fir]
+  target_sample_rate: 2000  # Hz; null = no resampling (source rate is estimated from timestamps)
+
+# Zero-amplitude rest / contact / air states padded onto recording ends
+silence_padding:
+  enabled: true
+  prob: 0.3  # per end
+  state_segments: [1, 3]
+  force_off: 0.1  # N
+  fade_ms: 10
+  seed: 0
+
+segmentation:
+  duration: 0.1  # s
+
+parallel:
+  enabled: true
+  num_workers: null  # null = full CPU count

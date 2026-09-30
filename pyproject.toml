@@ -1,0 +1,30 @@
+[project]
+name = "haptoflow"
+version = "0.1.0"
+description = "Real-time vibrotactile waveform generation with EnCodec-latent Flow Matching"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch",
+    "torchaudio",
+    "encodec",
+    "librosa",
+    "scipy",
+    "numpy",
+    "pandas",
+    "pyarrow",
+    "soundfile",
+    "matplotlib",
+    "Pillow",
+    "openpyxl",
+    "huggingface_hub",
+    "safetensors",
+    "omegaconf",
+    "PyYAML",
+    "tqdm",
+    "wandb",
+    "gradio",
+    "psutil>=7.2.2",
+]
+
+# No [build-system]: uv sync installs dependencies only
