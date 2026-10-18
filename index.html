@@ -98,6 +98,8 @@
     text-transform:uppercase; letter-spacing:.09em; color:var(--accent);
   }
   .overview p{margin:0; font-size:16.5px}
+  .video{position:relative; aspect-ratio:16/9; margin-top:22px; border-radius:8px; overflow:hidden; background:#000}
+  .video iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
   .half{display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:start}
   .half figure{margin:0}
 
@@ -200,6 +202,11 @@
         both waveform reproduction accuracy and inference latency. This model enables scalable haptic design
         without manual authoring of individual waveforms.
       </p>
+      <div class="video">
+        <iframe src="https://www.youtube-nocookie.com/embed/gL11-MbwNwI" title="HaptoFlow video"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe>
+      </div>
     </div>
   </div>
 </div>
